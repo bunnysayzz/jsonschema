@@ -715,6 +715,18 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance="foo", schema=schema)
         self.assertEqual(message, "'foo' is not of type 'array'")
 
+    def test_unevaluated_items_with_boolean_items(self):
+        validator = validators.Draft201909Validator(
+            {"items": True, "unevaluatedItems": False},
+        )
+        self.assertEqual(list(validator.iter_errors([1, 2])), [])
+
+        validator = validators.Draft201909Validator(
+            {"items": False, "unevaluatedItems": False},
+        )
+        self.assertEqual(list(validator.iter_errors([])), [])
+        self.assertEqual(len(list(validator.iter_errors([1, 2]))), 2)
+
     def test_unevaluated_properties_invalid_against_subschema(self):
         schema = {
             "properties": {"foo": {"type": "string"}},
